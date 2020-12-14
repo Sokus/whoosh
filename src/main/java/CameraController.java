@@ -13,10 +13,15 @@ public class CameraController{
     double angleBeta = 0;
     double distance = 60;
 
-    public void setCameraPosition(double alpha, double beta, double distance){
+    double alphaMax = 90;
+    double alphaMin = -90;
+
+    public void setRotationAbsolute(double alpha, double beta, double distance){
+
+        alpha = Math.min(alphaMax,Math.max(alphaMin,alpha));
+        this.angleAlpha = alpha;
         this.angleBeta = beta;
         this.distance = distance;
-        this.angleAlpha = Math.min(85,Math.max(15,alpha));
 
         double radA = Math.toRadians(alpha);
         double radB = Math.toRadians(beta);
@@ -33,16 +38,14 @@ public class CameraController{
         camera.getTransforms().setAll(translate,rotBeta, rotAlpha);
     }
 
-    public void moveCameraRelative(double alpha, double beta, double distance)
+    public void setRotationRelative(double alpha, double beta, double distance)
     {
-        setCameraPosition(this.angleAlpha+alpha, this.angleBeta+beta, this.distance + distance);
+        setRotationAbsolute(this.angleAlpha+alpha, this.angleBeta+beta, this.distance + distance);
     }
 
-    public CameraController(Point3D focusPoint, double angleAlpha, double angleBeta, double distance){
+    public CameraController(){
         camera = new PerspectiveCamera(true);
         camera.setFarClip(1000);
-        this.focusPoint = focusPoint;
-        setCameraPosition(angleAlpha,angleBeta,distance);
     }
 
     public PerspectiveCamera getCamera() { return camera; }
