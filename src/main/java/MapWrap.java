@@ -108,7 +108,7 @@ public class MapWrap {
         String[] names = {"One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten"};
         for (int i=0; i<coordinates.length; i++)
         {
-            Airport airport = new Airport(terrain, names[i], PlaneType.PASSENGER, coordinates[i][0], coordinates[i][1]);
+            Airport airport = new Airport(terrain, i, names[i], Math.random() >= 0.5 ? PlaneType.PASSENGER : PlaneType.ARMY, coordinates[i][0], coordinates[i][1]);
             airports.add(airport);
             airportModels.getChildren().add(airport.getModel());
         }
@@ -121,6 +121,7 @@ public class MapWrap {
         airportModels = new Group();
         this.airports = main.airports;
         this.stage = stage;
+        this.stage.setTitle("whoosh: Map");
         size = new int[] {1280, 720};
         basicSetup();
         loadMapFiles();

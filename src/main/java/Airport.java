@@ -10,21 +10,22 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
 public class Airport {
+    int ID = -1;
     String name;
     PlaneType planeType;
-    Translate position;
+    double[] position;
     boolean busy = false;
     Box model = new Box();
 
-    public Airport(Group terrain, String name, PlaneType planeType, double positionX, double positionZ)
+    public Airport(Group terrain, int ID, String name, PlaneType planeType, double positionX, double positionZ)
     {
+        this.ID = ID;
         this.name = name;
-        positionX = Math.round(positionX);
-        positionZ = Math.round(positionZ);
-        double minY, maxY;
+        this.planeType = planeType;
+        position = new double[] {positionX, positionZ};
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
         ObservableList<Node> nodes = terrain.getChildren();
-        minY = Double.POSITIVE_INFINITY;
-        maxY = Double.NEGATIVE_INFINITY;
 
         for (Node node : nodes)
         {

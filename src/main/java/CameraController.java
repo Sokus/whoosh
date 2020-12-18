@@ -13,8 +13,8 @@ public class CameraController{
     double angleBeta = 0;
     double distance = 60;
 
-    double alphaMax = 90;
-    double alphaMin = -90;
+    double alphaMax = 80;
+    double alphaMin = 10;
 
     public void setRotationAbsolute(double alpha, double beta, double distance){
 
