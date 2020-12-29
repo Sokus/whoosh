@@ -62,7 +62,7 @@ public class ControlWindow {
             addRandom.getChildren().addAll(randomTitle, buttons);
         }
 
-        GridPane selectAirport = new GridPane();
+        HBox selectAirport = new HBox();
         String notSelectedPrompt = "<unknown>";
         Label idLabel = new Label(notSelectedPrompt);
         Label nameLabel = new Label(notSelectedPrompt);
@@ -104,13 +104,28 @@ public class ControlWindow {
                         }
                     }
             );
-
+            
+            Button deleteButton = new Button("Delete");
+            deleteButton.setOnMouseClicked(e -> {
+                Object airportName = airportSelectionBox.getSelectionModel().getSelectedItem();
+                if (airportName != null)
+                {
+                    for(int i=0; i<main.airports.size(); i++)
+                    {
+                        if(airportName.toString().equals(main.airports.get(i).name))
+                        {
+                            main.mapStage.airportModels.getChildren().remove(main.airports.get(i).getModel());
+                            main.airports.remove(i);
+                            main.panelWrap.airportSelectionBox.getItems().remove(main.panelWrap.airportSelectionBox.getValue());
+                            break;
+                        }
+                    }
+                }
+            });
             selectAirport.setPadding(new Insets(10, 10, 10, 10));
-            selectAirport.setVgap(5);
-            selectAirport.setHgap(5);
+            selectAirport.setSpacing(5);
             selectAirport.setAlignment(Pos.TOP_LEFT);
-            selectAirport.add(new Label("Airport:"), 0, 0);
-            selectAirport.add(airportSelectionBox, 1, 0);
+            selectAirport.getChildren().addAll(new Label("Airport:"),airportSelectionBox, deleteButton);
         }
         resetPlaneSelectionBox();
 
@@ -135,29 +150,7 @@ public class ControlWindow {
             airportPosition.setPadding(new Insets(10, 10, 10, 10));
         }
 
-        VBox deleteAirport = new VBox();
-        {
-            deleteAirport.setPadding(new Insets(10,10,10,10));
-            Button button = new Button("Delete");
-            deleteAirport.getChildren().add(button);
-            button.setOnMouseClicked(e -> {
-                Object airportName = airportSelectionBox.getSelectionModel().getSelectedItem();
-                if (airportName != null)
-                {
-                    for(int i=0; i<main.airports.size(); i++)
-                    {
-                        if(airportName.toString().equals(main.airports.get(i).name))
-                        {
-                            main.mapStage.airportModels.getChildren().remove(main.airports.get(i).getModel());
-                            main.airports.remove(i);
-                            main.panelWrap.airportSelectionBox.getItems().remove(main.panelWrap.airportSelectionBox.getValue());
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-        vbox.getChildren().addAll(addRandom, selectAirport, airportDetails, airportPosition, deleteAirport);
+        vbox.getChildren().addAll(addRandom, selectAirport, airportDetails, airportPosition);
     }
 
     private void planesTabSetup() {
