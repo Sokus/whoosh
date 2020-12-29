@@ -8,7 +8,7 @@ import javafx.scene.transform.Translate;
 public class CameraController{
     private PerspectiveCamera camera;
 
-    Point3D focusPoint = new Point3D(0,0,0);
+    public Point3D focusPoint = new Point3D(0,0,0);
     double angleAlpha = 0;
     double angleBeta = 0;
     double distance = 60;

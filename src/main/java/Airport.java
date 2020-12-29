@@ -1,52 +1,58 @@
 package main.java;
 
-import javafx.collections.ObservableList;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Translate;
+import main.java.terrain.Terrain;
+
 
 public class Airport {
-    int ID = -1;
-    String name;
-    PlaneType planeType;
-    double[] position;
+    public int ID = -1;
+    public String name;
+    public PlaneType planeType;
+    public int[] position;
     boolean busy = false;
     Box model = new Box();
 
-    public Airport(Group terrain, int ID, String name, PlaneType planeType, double positionX, double positionZ)
-    {
+    public Airport(Terrain terrain, int ID, String name, PlaneType planeType, int positionX, int positionZ) {
         this.ID = ID;
         this.name = name;
         this.planeType = planeType;
-        position = new double[] {positionX, positionZ};
+        position = new int[]{positionX, positionZ};
         double minY = Double.POSITIVE_INFINITY;
         double maxY = Double.NEGATIVE_INFINITY;
-        ObservableList<Node> nodes = terrain.getChildren();
 
-        for (Node node : nodes)
-        {
-            Box box = (Box)node;
-            if(Math.abs(box.getTranslateX()-positionX)<1.5 && Math.abs(box.getTranslateZ()-positionZ)<1.5)
-            {
-                double boxHeight = box.getHeight();
-                if(boxHeight<minY) minY = boxHeight;
-                if(boxHeight>maxY) maxY = boxHeight;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                if (positionX + x < 0 || positionX + x >= terrain.size[0] || positionZ + z < 0 || positionZ + z >= terrain.size[1]) {
+                    continue;
+                }
+                Box box = terrain.getChunk(positionX + x, positionZ + z).model;
+                if (box != null) {
+                    double boxHeight = box.getHeight();
+                    if (boxHeight < minY) minY = boxHeight;
+                    if (boxHeight > maxY) maxY = boxHeight;
+                }
+
             }
         }
+
         maxY += 0.1;
         model.setTranslateX(positionX);
-        model.setTranslateY(-(minY+maxY)/2);
+        model.setTranslateY(-(minY + maxY) / 2);
         model.setTranslateZ(positionZ);
 
         model.setWidth(1.2);
-        model.setHeight(maxY-minY);
+        model.setHeight(maxY - minY);
         model.setDepth(1.2);
-        model.setMaterial(new PhongMaterial(Color.WHITE));
+        setDefaultColor();
     }
 
-    public Box getModel() { return model; }
+    public Box getModel() {
+        return model;
+    }
+
+    public void setDefaultColor() {
+        model.setMaterial(new PhongMaterial(Color.GRAY));
+    }
 }
