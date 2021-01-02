@@ -93,8 +93,8 @@ public class ControlWindow {
                             idLabel.setText(Integer.toString(selectedAirport.ID));
                             nameLabel.setText(selectedAirport.name);
                             typeLabel.setText(selectedAirport.planeType.name());
-                            positionXLabel.setText(Double.toString(selectedAirport.position[0]));
-                            positionZLabel.setText(Double.toString(selectedAirport.position[1]));
+                            positionXLabel.setText(Double.toString(selectedAirport.position.x));
+                            positionZLabel.setText(Double.toString(selectedAirport.position.z));
                         } else {
                             idLabel.setText(notSelectedPrompt);
                             nameLabel.setText(notSelectedPrompt);
@@ -122,10 +122,16 @@ public class ControlWindow {
                     }
                 }
             });
+            Button deleteAllButton = new Button("Delete All");
+            deleteAllButton.setOnMouseClicked(e -> {
+                main.mapStage.airportModels.getChildren().clear();
+                main.airports.clear();
+                main.panelWrap.airportSelectionBox.getItems().clear();
+            });
             selectAirport.setPadding(new Insets(10, 10, 10, 10));
             selectAirport.setSpacing(5);
             selectAirport.setAlignment(Pos.TOP_LEFT);
-            selectAirport.getChildren().addAll(new Label("Airport:"),airportSelectionBox, deleteButton);
+            selectAirport.getChildren().addAll(new Label("Airport:"),airportSelectionBox, deleteButton, deleteAllButton);
         }
         resetPlaneSelectionBox();
 
@@ -145,7 +151,7 @@ public class ControlWindow {
 
         HBox airportPosition = new HBox();
         {
-            airportPosition.getChildren().addAll(new Label("X: "), positionXLabel, new Rectangle(10, 10, Color.TRANSPARENT), new Label("Z: "), positionZLabel);
+            airportPosition.getChildren().addAll(new Label("X: "),positionXLabel, new Rectangle(10, 10, Color.TRANSPARENT), new Label("Z: "), positionZLabel);
             airportPosition.setAlignment(Pos.TOP_LEFT);
             airportPosition.setPadding(new Insets(10, 10, 10, 10));
         }

@@ -4,13 +4,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import main.java.terrain.Terrain;
+import main.java.utility.Vector3D;
 
 
 public class Airport {
-    public int ID = -1;
+    public int ID;
     public String name;
     public PlaneType planeType;
-    public int[] position;
+    public Vector3D position;
     boolean busy = false;
     Box model = new Box();
 
@@ -18,7 +19,7 @@ public class Airport {
         this.ID = ID;
         this.name = name;
         this.planeType = planeType;
-        position = new int[]{positionX, positionZ};
+        position = new Vector3D(positionX, 0, positionZ);
         double minY = Double.POSITIVE_INFINITY;
         double maxY = Double.NEGATIVE_INFINITY;
 
@@ -38,9 +39,9 @@ public class Airport {
         }
 
         maxY += 0.1;
-        model.setTranslateX(positionX);
+        model.setTranslateX(position.x);
         model.setTranslateY(-(minY + maxY) / 2);
-        model.setTranslateZ(positionZ);
+        model.setTranslateZ(position.z);
 
         model.setWidth(1.2);
         model.setHeight(maxY - minY);

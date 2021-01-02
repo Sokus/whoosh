@@ -30,6 +30,7 @@ public class MapWindow {
     Group root;
     Group terrainGroup;
     Group airportModels;
+    public Group planeModels;
     String[] names;
 
     CameraController cameraController = new CameraController();
@@ -43,9 +44,14 @@ public class MapWindow {
     Random random = new Random();
 
     private void basicSetup() {
-        root.getChildren().addAll(terrainGroup, airportModels);
+        terrainGroup = new Group();
+        airportModels = new Group();
+        planeModels = new Group();
+        root.getChildren().addAll(terrainGroup, airportModels, planeModels);
         scene = new Scene(root, size[0], size[1], true);
         stage.setScene(scene);
+        stage.setX(5);
+        stage.setY(5);
         scene.setFill(Color.grayRgb(32));
         scene.setCamera(cameraController.getCamera());
 
@@ -147,7 +153,7 @@ public class MapWindow {
             randZ = random.nextInt(imageSize[1]);
             if (main.terrain.getChunk(randX, randZ).type == TerrainType.LAND) {
                 for (Airport a : main.airports) {
-                    if (Math.abs(a.position[0] - randX) < distanceBetweenAirports && Math.abs(a.position[1] - randZ) < distanceBetweenAirports) {
+                    if (Math.abs(a.position.x - randX) < distanceBetweenAirports && Math.abs(a.position.z - randZ) < distanceBetweenAirports) {
                         canCreate = false;
                         break;
                     }
@@ -212,8 +218,6 @@ public class MapWindow {
     public MapWindow(Main main, Stage stage) {
         this.main = main;
         root = new Group();
-        terrainGroup = new Group();
-        airportModels = new Group();
         this.stage = stage;
         this.stage.setTitle("whoosh: Map");
         size = new int[]{1280, 720};
