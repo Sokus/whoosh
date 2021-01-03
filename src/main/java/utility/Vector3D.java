@@ -40,7 +40,7 @@ public class Vector3D {
         return Math.sqrt(Math.pow(a.x, 2) + Math.pow(a.y, 2) + Math.pow(a.z, 2));
     }
 
-    public static double Dot(Vector3D a, Vector3D b) {
-        return a.x * b.x + a.y * b.y + a.z * b.z;
+    public static Vector3D Flat(Vector3D a) {
+        return new Vector3D(a.x, 0, a.z);
     }
 }

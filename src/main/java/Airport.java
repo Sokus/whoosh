@@ -46,14 +46,20 @@ public class Airport {
         model.setWidth(1.2);
         model.setHeight(maxY - minY);
         model.setDepth(1.2);
-        setDefaultColor();
+        position.y = -model.getTranslateY() + model.getHeight()/2;
+        setDarkColor();
     }
 
     public Box getModel() {
         return model;
     }
 
-    public void setDefaultColor() {
+    public void setDarkColor() {
         model.setMaterial(new PhongMaterial(Color.GRAY));
     }
+
+    public void setBrightColor() {
+        model.setMaterial(new PhongMaterial(Color.WHITE));
+    }
+
 }

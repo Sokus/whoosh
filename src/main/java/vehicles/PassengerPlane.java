@@ -6,7 +6,7 @@ public class PassengerPlane extends Plane{
     int currentPassengers;
     int maxPassengers;
 
-    public PassengerPlane(int UID, Vector3D position, double maxSpeed) {
-        super(UID, position, maxSpeed);
+    public PassengerPlane(int UID, Vector3D position, double maxSpeed, double cruiseLevel) {
+        super(UID, position, maxSpeed, cruiseLevel);
     }
 }

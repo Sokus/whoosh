@@ -34,6 +34,7 @@ public class ControlWindow {
         scene = new Scene(vbox, size[0], size[1]);
         stage.setScene(scene);
         stage.onCloseRequestProperty().set(e -> {
+            main.stop();
             Platform.exit();
         });
         stage.setX(main.mapStage.stage.getX() + main.mapStage.size[0]);
@@ -86,10 +87,10 @@ public class ControlWindow {
                             }
                         }
                         if (oldAirport != null) {
-                            oldAirport.setDefaultColor();
+                            oldAirport.setDarkColor();
                         }
                         if (selectedAirport != null) {
-                            selectedAirport.getModel().setMaterial(new PhongMaterial(Color.WHITE));
+                            selectedAirport.setBrightColor();
                             idLabel.setText(Integer.toString(selectedAirport.ID));
                             nameLabel.setText(selectedAirport.name);
                             typeLabel.setText(selectedAirport.planeType.name());

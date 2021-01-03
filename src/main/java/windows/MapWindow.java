@@ -15,12 +15,18 @@ import main.java.PlaneType;
 import main.java.terrain.Chunk;
 import main.java.terrain.Terrain;
 import main.java.terrain.TerrainType;
+import main.java.utility.Vector3D;
+import main.java.vehicles.FighterPlane;
+import main.java.vehicles.PassengerPlane;
+import main.java.vehicles.Plane;
+import main.java.vehicles.Vehicle;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Vector;
 
 public class MapWindow {
     Main main;
@@ -40,6 +46,9 @@ public class MapWindow {
     BufferedImage colorImage;
     BufferedImage grayscaleImage;
     private int[] imageSize = {0, 0};
+
+    double waterLevel;
+    double peakLevel;
 
     Random random = new Random();
 
@@ -66,7 +75,10 @@ public class MapWindow {
             }
         });
 
-        stage.onCloseRequestProperty().set(e -> Platform.exit());
+        stage.onCloseRequestProperty().set(e -> {
+            main.stop();
+            Platform.exit();
+        });
 
         names = new String[]{"One",
                 "Two",
@@ -114,7 +126,8 @@ public class MapWindow {
 
     private void createMap() {
         main.terrain = new Terrain(imageSize[0], imageSize[1]);
-        double waterLevel = 1.8;
+        waterLevel = Double.MAX_VALUE;
+        peakLevel = Double.MIN_VALUE;
         for (int x = 0; x < imageSize[0]; x++) {
             for (int z = 0; z < imageSize[1]; z++) {
                 Box box = new Box();
@@ -124,7 +137,9 @@ public class MapWindow {
                 int bGrayscale = sampleGrayscale & 0xff;
                 double normalizedValue = (double) (rGrayscale + gGrayscale + bGrayscale) / (3 * 256);
                 double height = normalizedValue * 7;
-                main.terrain.setChunk(x, z, new Chunk(height > waterLevel ? TerrainType.LAND : TerrainType.WATER, box));
+                if (height > peakLevel) peakLevel = height;
+                if (height < waterLevel) waterLevel = height;
+                main.terrain.setChunk(x, z, new Chunk(null, box));
                 box.setTranslateX(x);
                 box.setTranslateY(-height / 2);
                 box.setTranslateZ(z);
@@ -139,6 +154,13 @@ public class MapWindow {
                 int bColor = sampleColor & 0xff;
                 box.setMaterial(new PhongMaterial(Color.rgb(rColor, gColor, bColor)));
                 terrainGroup.getChildren().add(box);
+            }
+        }
+        for (int x = 0; x < main.terrain.size[0]; x++) {
+            for (int z = 0; z < main.terrain.size[1]; z++) {
+                Chunk temporary = main.terrain.getChunk(x,z);
+                double height = temporary.model.getHeight();
+                temporary.type = height > waterLevel+0.1 ? TerrainType.LAND : TerrainType.WATER;
             }
         }
     }
@@ -191,7 +213,7 @@ public class MapWindow {
                     Airport airport = new Airport(main.terrain,
                             newID,
                             newName,
-                            Math.random() >= 0.5 ? PlaneType.PASSENGER : PlaneType.ARMY,
+                            random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY,
                             randX,
                             randZ);
                     main.airports.add(airport);
@@ -202,7 +224,6 @@ public class MapWindow {
                 }
             }
         }
-        return;
     }
 
     public void createAirports(int airportsToCreate) {
@@ -211,6 +232,102 @@ public class MapWindow {
             for(int i=0; i<airportsToCreate; i++)
             {
                 createRandomAirport(4);
+            }
+        }
+    }
+
+    public void createRandomPlane() {
+        int newID = 0;
+        for (int i = 0; i < main.passengerPlanes.size() || i < main.fighterPlanes.size(); i++) {
+            boolean check = true;
+            if (i < main.passengerPlanes.size()) {
+                if (newID == main.passengerPlanes.get(i).UID) {
+                    check = false;
+                    newID++;
+                }
+            }
+            if (i < main.fighterPlanes.size()) {
+                if (newID == main.fighterPlanes.get(i).UID) {
+                    check = false;
+                    newID++;
+                }
+            }
+            if (check) break;
+        }
+
+        String newName = "";
+        for (int i = 0; i < 8; i++) {
+            newName += Character.toString((char) (97 + random.nextInt(26)));
+        }
+
+        boolean[] nameCheck = new boolean[names.length];
+        for (Vehicle v : main.passengerPlanes) {
+            for (int i = 0; i < names.length; i++) {
+                if (v.name.equals(names[i])) {
+                    nameCheck[i] = true;
+                    break;
+                }
+            }
+        }
+        for (Vehicle v : main.fighterPlanes) {
+            for (int i = 0; i < names.length; i++) {
+                if (v.name.equals(names[i])) {
+                    nameCheck[i] = true;
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < names.length; i++) {
+            if (!nameCheck[i]) {
+                newName = names[i];
+                break;
+            }
+        }
+        PlaneType type = random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY;
+        Vector<Airport> airports = new Vector<>();
+        for (Airport a : main.airports) {
+            if (a.planeType == type) {
+                airports.add(a);
+            }
+        }
+        if (airports.size() > 1) {
+            int pathLength = airports.size() / 2;
+            pathLength = Math.min(pathLength, airports.size());
+            Vector<Airport> path = new Vector<>(pathLength);
+            for (int i = 0; i < pathLength; i++) {
+                int index = random.nextInt(airports.size() - i);
+                Airport a = airports.get(index);
+                airports.set(index, airports.get(airports.size() - 1));
+                airports.set(airports.size() - 1, a);
+                path.add(a);
+            }
+            Vector3D position = new Vector3D(random.nextInt(main.terrain.size[0]),
+                    main.mapStage.peakLevel+0.5,
+                    random.nextInt(main.terrain.size[1]));
+            Plane plane = null;
+            switch(type) {
+                case PASSENGER -> {
+                    plane = new PassengerPlane(newID, position, 3, peakLevel + 0.5);
+                    main.passengerPlanes.add((PassengerPlane)plane);
+                }
+                case ARMY -> {
+                    plane = new FighterPlane(newID, position, 3, peakLevel + 0.5);
+                    main.fighterPlanes.add((FighterPlane)plane);
+                }
+            }
+            plane.path = path;;
+            plane.lastAirport = path.get(0);
+            plane.nextAirport = path.get(1);
+            plane.name = newName;
+            planeModels.getChildren().add(plane.getModel());
+            plane.start();
+        }
+    }
+
+    public void createPlanes(int planesToCreate) {
+        if(main.airports.size() > 1) {
+            for(int i=0; i<planesToCreate; i++) {
+                createRandomPlane();
             }
         }
     }

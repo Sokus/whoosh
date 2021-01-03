@@ -1,5 +1,6 @@
 package main.java.vehicles;
 
+import javafx.application.Platform;
 import main.java.Airport;
 import main.java.utility.Vector3D;
 
@@ -10,25 +11,31 @@ public abstract class Plane extends Vehicle {
 
     public Vector<Airport> path = new Vector<>();
     public Airport nextAirport = null;
+    public Airport lastAirport = null;
+    double distanceBetweenAirports;
     int fuel;
-    int personel;
+    int personnel;
 
-    Plane(int UID, Vector3D position, double maxSpeed) {
-        super(UID, position, maxSpeed);
+    Plane(int UID, Vector3D position, double maxSpeed, double cruiseLevel) {
+        super(UID, position, maxSpeed, cruiseLevel);
     }
 
     void DoTravel() {
-        if (nextAirport != null) {
-            Vector3D difference = Vector3D.Sub(position, new Vector3D(nextAirport.position.x, position.y, nextAirport.position.z));
+        if (nextAirport != null && lastAirport != null) {
+            Vector3D lastAirportPosition2D = Vector3D.Flat(lastAirport.position);
+            Vector3D nextAirportPosition2D = Vector3D.Flat(nextAirport.position);
+            Vector3D position2D = Vector3D.Flat(position);
+            double distanceFromLastAirport = Vector3D.Mag(Vector3D.Sub(position2D, lastAirportPosition2D));
+            double distanceToNextAirport = Vector3D.Mag(Vector3D.Sub(position2D, nextAirportPosition2D));
+            double targetAttitude = Math.min(cruiseLevel, Math.min(lastAirport.position.y+distanceFromLastAirport, nextAirport.position.y+distanceToNextAirport));
+            Vector3D difference = Vector3D.Sub(position2D, nextAirportPosition2D);
             double distance = Vector3D.Mag(difference);
             double positionDelta = maxSpeed * updateDelay / 1000;
             if (distance > positionDelta) {
                 Vector3D direction = Vector3D.Norm(difference);
                 Vector3D translate = Vector3D.Scale(direction, positionDelta);
                 position = Vector3D.Add(position, translate);
-                model.setTranslateX(position.x);
-                model.setTranslateY(-position.y);
-                model.setTranslateZ(position.z);
+                position.y = targetAttitude;
             } else {
                 state = State.LANDING;
             }
@@ -36,26 +43,23 @@ public abstract class Plane extends Vehicle {
     }
 
     void DoLanding() throws InterruptedException {
-        System.out.println("Plane " + UID + " is landing at " + nextAirport.name);
-        Thread.sleep(1000);
         state = State.STATIONARY;
     }
 
     void DoStationary() throws InterruptedException {
-        System.out.println("Plane " + UID + " has landed at " + nextAirport.name);
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         state = State.TAKEOFF;
     }
 
     void DoTakeOff() throws InterruptedException {
-        System.out.println("Plane " + UID + " is taking off at " + nextAirport.name);
-        Thread.sleep(1000);
         state = State.TRAVEL;
         for(int i=0; i<path.size()-1; i++){
             path.set(i, path.get(i+1));
         }
         path.set(path.size()-1,nextAirport);
         nextAirport = path.get(0);
+        lastAirport = path.get(path.size()-1);
+        distanceBetweenAirports = Vector3D.Mag(Vector3D.Sub(nextAirport.position, lastAirport.position));
     }
 
     @Override
@@ -70,6 +74,11 @@ public abstract class Plane extends Vehicle {
                         case TAKEOFF -> DoTakeOff();
                     }
                 }
+                Platform.runLater(() -> {
+                    model.setTranslateX(position.x);
+                    model.setTranslateY(-position.y);
+                    model.setTranslateZ(position.z);
+                });
                 Thread.sleep(updateDelay);
             }
         } catch (InterruptedException e) {

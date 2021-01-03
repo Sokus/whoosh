@@ -7,18 +7,21 @@ import main.java.utility.Vector3D;
 
 public abstract class Vehicle implements Runnable {
     int updateDelay = 17;
-    boolean running = true;
+    volatile boolean running = true;
 
-    int UID;
+    public int UID;
+    public String name;
     Vector3D position;
     double maxSpeed; // units per second
+    double cruiseLevel;
 
     Sphere model;
 
-    Vehicle(int UID, Vector3D position, double maxSpeed) {
+    Vehicle(int UID, Vector3D position, double maxSpeed, double cruiseLevel) {
         this.UID = UID;
         this.position = new Vector3D(position);
         this.maxSpeed = maxSpeed;
+        this.cruiseLevel = cruiseLevel;
 
         model = new Sphere();
         model.setTranslateX(position.x);
@@ -28,6 +31,14 @@ public abstract class Vehicle implements Runnable {
         model.setRadius(0.2);
 
         model.setMaterial(new PhongMaterial(Color.WHITE));
+    }
+
+    public void start() {
+        new Thread(this).start();
+    }
+
+    public void stop() {
+        running = false;
     }
 
     public Sphere getModel() {
