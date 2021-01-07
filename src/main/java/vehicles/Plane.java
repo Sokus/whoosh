@@ -12,6 +12,7 @@ public abstract class Plane extends Vehicle {
     public Vector<Airport> path = new Vector<>();
     public Airport nextAirport = null;
     public Airport lastAirport = null;
+    public int currentAirportIndex = 0;
     double distanceBetweenAirports;
     int fuel;
     int personnel;
@@ -27,7 +28,7 @@ public abstract class Plane extends Vehicle {
             Vector3D position2D = Vector3D.Flat(position);
             double distanceFromLastAirport = Vector3D.Mag(Vector3D.Sub(position2D, lastAirportPosition2D));
             double distanceToNextAirport = Vector3D.Mag(Vector3D.Sub(position2D, nextAirportPosition2D));
-            double targetAttitude = Math.min(cruiseLevel, Math.min(lastAirport.position.y+distanceFromLastAirport, nextAirport.position.y+distanceToNextAirport));
+            double targetAttitude = Math.min(cruiseLevel, Math.min(lastAirport.position.y + distanceFromLastAirport, nextAirport.position.y + distanceToNextAirport));
             Vector3D difference = Vector3D.Sub(position2D, nextAirportPosition2D);
             double distance = Vector3D.Mag(difference);
             double positionDelta = maxSpeed * updateDelay / 1000;
@@ -42,23 +43,24 @@ public abstract class Plane extends Vehicle {
         }
     }
 
-    void DoLanding() throws InterruptedException {
+    void DoLanding() {
         state = State.STATIONARY;
     }
 
     void DoStationary() throws InterruptedException {
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         state = State.TAKEOFF;
     }
 
-    void DoTakeOff() throws InterruptedException {
+    void DoTakeOff() {
         state = State.TRAVEL;
-        for(int i=0; i<path.size()-1; i++){
-            path.set(i, path.get(i+1));
+        currentAirportIndex = (currentAirportIndex + 1) % path.size();
+        nextAirport = path.get(currentAirportIndex);
+        if(currentAirportIndex > 0) {
+            lastAirport = path.get(currentAirportIndex-1);
+        } else {
+            lastAirport = path.get(path.size()-1);
         }
-        path.set(path.size()-1,nextAirport);
-        nextAirport = path.get(0);
-        lastAirport = path.get(path.size()-1);
         distanceBetweenAirports = Vector3D.Mag(Vector3D.Sub(nextAirport.position, lastAirport.position));
     }
 
@@ -66,7 +68,8 @@ public abstract class Plane extends Vehicle {
     public void run() {
         try {
             while (running) {
-                if (path.size() > 0) {
+                Thread.sleep(updateDelay);
+                if (path.size() > 1) {
                     switch (state) {
                         case TRAVEL -> DoTravel();
                         case LANDING -> DoLanding();
@@ -79,7 +82,6 @@ public abstract class Plane extends Vehicle {
                     model.setTranslateY(-position.y);
                     model.setTranslateZ(position.z);
                 });
-                Thread.sleep(updateDelay);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

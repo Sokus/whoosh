@@ -44,4 +44,12 @@ public abstract class Vehicle implements Runnable {
     public Sphere getModel() {
         return model;
     }
+
+    public void setDarkColor() {
+        model.setMaterial(new PhongMaterial(Color.WHITE));
+    }
+
+    public void setBrightColor() {
+        model.setMaterial(new PhongMaterial(Color.CYAN));
+    }
 }

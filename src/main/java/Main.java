@@ -27,9 +27,6 @@ public class Main extends Application {
     public void start(Stage stage) {
         mapStage = new MapWindow(this, stage);
         panelWrap = new ControlWindow(this);
-
-        mapStage.createAirports(20);
-        mapStage.createPlanes(15);
     }
 
     public void stop() {

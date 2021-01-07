@@ -5,6 +5,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import main.java.terrain.Terrain;
 import main.java.utility.Vector3D;
+import main.java.vehicles.PlaneType;
 
 
 public class Airport {

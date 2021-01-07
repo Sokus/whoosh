@@ -7,7 +7,7 @@ public class Ferry extends Ship{
     int maxPassengers;
     String companyName;
 
-    Ferry(int UID, Vector3D position, double maxSpeed, double cruiseLevel) {
+    public Ferry(int UID, Vector3D position, double maxSpeed, double cruiseLevel) {
         super(UID, position, maxSpeed, cruiseLevel);
     }
 }
