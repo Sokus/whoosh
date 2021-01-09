@@ -12,6 +12,10 @@ public class PassengerPlane extends Plane{
         super(UID, position, maxSpeed, cruiseLevel);
     }
 
+    /**
+     * Called when plane has succesfully landed, swaps out all the passengers.
+     * @throws InterruptedException Hibernates vehicle's thread for a short while, throws exception when interrupted.
+     */
     void ChangePassengers() throws InterruptedException {
         while(running && currentPassengers > 0) {
             Thread.sleep(10);
@@ -25,6 +29,10 @@ public class PassengerPlane extends Plane{
         }
     }
 
+    /**
+     * Override of parent method, unique for PassengerPlane - it changes it's passengers after landing.
+     * @throws InterruptedException Calls Thread.sleep(), throws exception on interruption.
+     */
     protected void DoStationary() throws InterruptedException {
         super.DoStationary();
         ChangePassengers();

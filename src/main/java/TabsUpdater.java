@@ -15,7 +15,6 @@ public class TabsUpdater implements Runnable{
         this.controlWindow = controlWindow;
     }
 
-    @Override
     public void run() {
         while(running) {
             try {

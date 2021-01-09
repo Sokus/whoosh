@@ -16,6 +16,12 @@ public class CameraController{
     double alphaMax = 80;
     double alphaMin = 10;
 
+    /**
+     * Set the absolute rotation and distance from the focus point.
+     * @param alpha Vertical angle.
+     * @param beta Horizontal angle.
+     * @param distance Distance from the focus point.
+     */
     public void setRotationAbsolute(double alpha, double beta, double distance){
 
         alpha = Math.min(alphaMax,Math.max(alphaMin,alpha));
@@ -38,6 +44,12 @@ public class CameraController{
         camera.getTransforms().setAll(translate,rotBeta, rotAlpha);
     }
 
+    /**
+     * Set the relative rotation and distance from the focus point.
+     * @param alpha Vertical angle.
+     * @param beta Horizontal angle.
+     * @param distance Distance from the focus point.
+     */
     public void setRotationRelative(double alpha, double beta, double distance)
     {
         setRotationAbsolute(this.angleAlpha+alpha, this.angleBeta+beta, this.distance + distance);

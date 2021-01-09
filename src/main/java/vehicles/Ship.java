@@ -20,6 +20,9 @@ public abstract class Ship extends Vehicle {
         SetRandomDirection();
     }
 
+    /**
+     * Called in every update of the vehicle, it makes the Ship move and changes its direction when colliding with terrain chunks.
+     */
     void DoTravel() {
         double positionDelta = maxSpeed * updateDelay / 1000;
         boolean repeat = false;
@@ -46,7 +49,9 @@ public abstract class Ship extends Vehicle {
         direction = Vector3D.Norm(new Vector3D(randomX, 0, randomZ));
     }
 
-    @Override
+    /**
+     * Implements main method of Runnable Interface.
+     */
     public void run() {
         try {
             while (running) {

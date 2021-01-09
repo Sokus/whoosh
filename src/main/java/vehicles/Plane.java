@@ -22,6 +22,9 @@ public abstract class Plane extends Vehicle {
         super(UID, position, maxSpeed, cruiseLevel);
     }
 
+    /**
+     * Called every update cycle when the plane is traveling. It calculates it's target direction and moves the plane.
+     */
     void DoTravel() {
         if (nextAirport != null) {
             Vector3D lastAirportPosition2D;
@@ -55,10 +58,17 @@ public abstract class Plane extends Vehicle {
         }
     }
 
+    /**
+     * Called on landing, changes the state of the plane.
+     */
     void DoLanding() {
         state = State.STATIONARY;
     }
 
+    /**
+     * Called when the plane is stationary, it simulates refilling of fuel tanks.
+     * @throws InterruptedException Thrown when interrupted (because of the call to Thread.sleep()).
+     */
     void RefillFuel() throws InterruptedException {
         int fuelToRefill = fuelCapacity - currentFuel;
         if(fuelToRefill > 0){
@@ -71,11 +81,18 @@ public abstract class Plane extends Vehicle {
         currentFuel = fuelCapacity;
     }
 
+    /**
+     * Called after landing.
+     * @throws InterruptedException Thrown when interrupted (because of the call to Thread.sleep()).
+     */
     protected void DoStationary() throws InterruptedException {
         RefillFuel();
         state = State.TAKEOFF;
     }
 
+    /**
+     * Called on take off, its purpose is to change planes destination.
+     */
     void DoTakeOff() {
         currentAirportIndex = (currentAirportIndex + 1) % path.size();
         nextAirport = path.get(currentAirportIndex);
@@ -88,7 +105,9 @@ public abstract class Plane extends Vehicle {
         state = State.TRAVEL;
     }
 
-    @Override
+    /**
+     * Implements main method of Runnable Interface.
+     */
     public void run() {
         try {
             while (running) {

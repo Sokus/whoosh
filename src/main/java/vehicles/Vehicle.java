@@ -35,6 +35,9 @@ public abstract class Vehicle implements Runnable {
         model.setMaterial(new PhongMaterial(Color.WHITE));
     }
 
+    /**
+     * Called after creating the vehicle, it starts the Thread the Vehicle is "living" in.
+     */
     public void start() {
         new Thread(this).start();
     }

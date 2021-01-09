@@ -32,6 +32,9 @@ public class Main extends Application {
         tabsUpdater.start();
     }
 
+    /**
+     * Stopps all the Threads created during runtime.
+     */
     public void stop() {
         for (Vehicle v : passengerPlanes) {
             v.stop();

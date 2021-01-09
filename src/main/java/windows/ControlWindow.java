@@ -34,6 +34,9 @@ public class ControlWindow {
 
     Main main;
 
+    /**
+     * Creates main elements of the Control Panel and initializes them with properties.
+     */
     private void basicSetup() {
         VBox vbox = new VBox(tabPane);
         scene = new Scene(vbox, size[0], size[1]);
@@ -46,6 +49,9 @@ public class ControlWindow {
         stage.setY(main.mapStage.stage.getY());
     }
 
+    /**
+     * Setups the Airports tab - here all of the buttons as well as their functions and layouts are described.
+     */
     private void airportsTabSetup() {
         VBox vbox = new VBox();
         airportsTab = new Tab("Airports", vbox);
@@ -211,6 +217,9 @@ public class ControlWindow {
         vbox.getChildren().addAll(addRandom, selectAirport, airportDetails, airportPosition, planesVisitingList);
     }
 
+    /**
+     * Setups the Planes tab - here all of the buttons as well as their functions and layouts are described.
+     */
     private void planesTabSetup() {
         VBox vbox = new VBox();
         planesTab = new Tab("Planes", vbox);
@@ -391,6 +400,9 @@ public class ControlWindow {
         vbox.getChildren().addAll(addRandom, selectPlane, planeDetails, pathList);
     }
 
+    /**
+     * Setups the Ships tab - here all of the buttons as well as their functions and layouts are described.
+     */
     private void shipsTabSetup() {
         VBox vbox = new VBox();
         shipsTab = new Tab("Ships", vbox);
@@ -567,6 +579,10 @@ public class ControlWindow {
         vbox.getChildren().addAll(addRandom, selectShip, createFighterPlane, shipDetails);
     }
 
+    /**
+     * Finds airport with specified name and deletes it.
+     * @param name Name of the airport to be deleted.
+     */
     private void DeleteAirport(String name) {
         if (name != null) {
             for (int i = 0; i < main.airports.size(); i++) {
@@ -588,6 +604,11 @@ public class ControlWindow {
         }
     }
 
+    /**
+     * After deleting an airport you can delete it from specified planes path. It also makes sure there is no plane with less than 2 airports on their path.
+     * @param airport Airport that was deleted.
+     * @param plane Plane to check for the airport.
+     */
     private void DeleteAirportFromPlane(Airport airport, Plane plane) {
         int initialPathSize = plane.path.size();
         while (plane.path.remove(airport)) ;
@@ -610,6 +631,10 @@ public class ControlWindow {
         });
     }
 
+    /**
+     * Finds plane with specified name and deletes it. It checks both passenger and fighter planes lists.
+     * @param name Name of the plane to be deleted.
+     */
     private void DeletePlane(String name) {
         if (name != null) {
             for (int i = 0; i < main.passengerPlanes.size(); i++) {
@@ -633,6 +658,10 @@ public class ControlWindow {
         }
     }
 
+    /**
+     * Finds ship with specified name and deletes it. It checks both ferries and carriers lists.
+     * @param name Name of the ship to be deleted.
+     */
     private void DeleteShip(String name) {
         if (name != null) {
             for (int i = 0; i < main.ferries.size(); i++) {
@@ -656,6 +685,10 @@ public class ControlWindow {
         }
     }
 
+    /**
+     * Finds a plane with specified name and forces it to do emergency landing.
+     * @param planeName Name of the plane to be forced to emergency land.
+     */
     private void CallEmergency(String planeName) {
         if (planeName != null) {
             Plane p = null;
@@ -696,6 +729,9 @@ public class ControlWindow {
         }
     }
 
+    /**
+     * Deletes all of the elements in airport selection box and adds existing airports to the list.
+     */
     public void resetAirportSelectionBox() {
         airportsSelectionBox.getItems().clear();
         for (Airport airport : main.airports) {
@@ -706,6 +742,9 @@ public class ControlWindow {
         }
     }
 
+    /**
+     * Deletes all of the elements in planes selection box and adds existing planes to the list.
+     */
     public void resetPlaneSelectionBox() {
         planesSelectionBox.getItems().clear();
         for (Plane plane : main.passengerPlanes) {
@@ -719,6 +758,9 @@ public class ControlWindow {
         }
     }
 
+    /**
+     * Deletes all of the elements in ships selection box and adds existing ships to the list.
+     */
     public void resetShipSelectionBox() {
         shipsSelectionBox.getItems().clear();
         for (Ship ship : main.ferries) {

@@ -49,6 +49,9 @@ public class MapWindow {
 
     Random random = new Random();
 
+    /**
+     * Basic setup of the Map window. It creates all the groups and interactions needed to show the scene.
+     */
     private void basicSetup() {
         terrainGroup = new Group();
         airportModels = new Group();
@@ -100,6 +103,9 @@ public class MapWindow {
                 "Twenty"};
     }
 
+    /**
+     * Load the map files needed to create the terrain.
+     */
     private void loadMapFiles() {
         try {
             colorFile = new File(main.workingDirectory + "\\src\\main\\resources\\map\\color.png");
@@ -121,6 +127,9 @@ public class MapWindow {
         }
     }
 
+    /**
+     * Build the map using data read from the images.
+     */
     private void createMap() {
         main.terrain = new Terrain(imageSize[0], imageSize[1]);
         waterLevel = Double.MAX_VALUE;
@@ -162,6 +171,10 @@ public class MapWindow {
         }
     }
 
+    /**
+     * Create an airport with unique ID and Name. It is randomly placed on piece of land.
+     * @param planeType You can pre-define what type of airport is it going to be, leave null for random type.
+     */
     public void createRandomAirport(PlaneType planeType) {
         int attemptsPerAirport = 1000;
         int distanceBetweenAirports = 4;
@@ -225,6 +238,11 @@ public class MapWindow {
         }
     }
 
+    /**
+     * Create a plane with unique ID and Name. Its path is randomly chosen from existing airports. Any plane needs at least 2 airports with maching type, fighter planes also need one ship on the map.
+     * @param type You can pre-define what type of plane is it going to be, leave null for random type.
+     * @param carrier You can specify a ship new Fighter Plane will be created on.
+     */
     public void createRandomPlane(PlaneType type, Carrier carrier) {
         if (type == null) {
             type = random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY;
@@ -328,6 +346,10 @@ public class MapWindow {
         main.panelWrap.planesSelectionBox.setValue(newName);
     }
 
+    /**
+     *  Creates a ship with unique ID and Name, spawned in a random place on water.
+     * @param type You can pre-define what type of ship is it going to be, leave null for random type.
+     */
     public void createRandomShip(ShipType type) {
         if(type == null) {
             type = random.nextBoolean() ? ShipType.FERRY : ShipType.CARRIER;
