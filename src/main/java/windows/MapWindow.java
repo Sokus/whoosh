@@ -162,16 +162,9 @@ public class MapWindow {
         }
     }
 
-    public void createAirports(int airportsToCreate) {
-        if (main.terrain.size[0] > 0 && main.terrain.size[1] > 0) {
-            for (int i = 0; i < airportsToCreate; i++) {
-                createRandomAirport(4);
-            }
-        }
-    }
-
-    public void createRandomAirport(int distanceBetweenAirports) {
+    public void createRandomAirport(PlaneType planeType) {
         int attemptsPerAirport = 1000;
+        int distanceBetweenAirports = 4;
         int randX;
         int randZ;
         for (int j = 0; j < attemptsPerAirport; j++) {
@@ -213,11 +206,13 @@ public class MapWindow {
                             break;
                         }
                     }
-
+                    if(planeType == null) {
+                        planeType = random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY;
+                    }
                     Airport airport = new Airport(main.terrain,
                             newID,
                             newName,
-                            random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY,
+                            planeType,
                             randX,
                             randZ);
                     main.airports.add(airport);
@@ -230,15 +225,28 @@ public class MapWindow {
         }
     }
 
-    public void createPlanes(int planesToCreate) {
-        if (main.airports.size() > 1) {
-            for (int i = 0; i < planesToCreate; i++) {
-                createRandomPlane();
+    public void createRandomPlane(PlaneType type, Carrier carrier) {
+        if (type == null) {
+            type = random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY;
+        }
+        Vector<Airport> airports = new Vector<>();
+        for (Airport a : main.airports) {
+            if (a.planeType == type) {
+                airports.add(a);
             }
         }
-    }
+        if(airports.size()<2) {
+            return;
+        }
+        if(type == PlaneType.ARMY) {
+            if(main.carriers.size()==0) {
+                return;
+            }
+            if(carrier == null) {
+                carrier = main.carriers.get(random.nextInt(main.carriers.size()));
+            }
+        }
 
-    public void createRandomPlane() {
         int newID = 0;
         for (int i = 0; i < main.passengerPlanes.size() || i < main.fighterPlanes.size(); i++) {
             boolean check = true;
@@ -285,56 +293,45 @@ public class MapWindow {
                 break;
             }
         }
-        PlaneType type = random.nextBoolean() ? PlaneType.PASSENGER : PlaneType.ARMY;
-        Vector<Airport> airports = new Vector<>();
-        for (Airport a : main.airports) {
-            if (a.planeType == type) {
-                airports.add(a);
+        int pathLength = airports.size();
+        Vector<Airport> path = new Vector<>(pathLength);
+        for (int i = 0; i < pathLength; i++) {
+            int index = random.nextInt(airports.size() - i) + i;
+            Airport a = airports.get(index);
+            path.add(a);
+            airports.set(index, airports.get(i));
+            airports.set(i, a);
+        }
+        Plane plane = null;
+        switch (type) {
+            case PASSENGER -> {
+                Vector3D position = new Vector3D(random.nextInt(main.terrain.size[0]),
+                        main.mapStage.peakLevel + 0.5,
+                        random.nextInt(main.terrain.size[1]));
+                plane = new PassengerPlane(newID, position, 2, peakLevel + 0.5);
+                main.passengerPlanes.add((PassengerPlane) plane);
+            }
+            case ARMY -> {
+                FighterPlane fighterPlane = new FighterPlane(newID, new Vector3D(carrier.position), 5, peakLevel + 0.5);
+                plane = fighterPlane;
+                fighterPlane.weaponType = carrier.weaponType;
+                carrier.planesCreated++;
+                main.fighterPlanes.add((FighterPlane) plane);
             }
         }
-        if (airports.size() > 1) {
-            int pathLength = airports.size();
-            Vector<Airport> path = new Vector<>(pathLength);
-            for (int i = 0; i < pathLength; i++) {
-                int index = random.nextInt(airports.size() - i) + i;
-                Airport a = airports.get(index);
-                path.add(a);
-                airports.set(index, airports.get(i));
-                airports.set(i, a);
-            }
-            Vector3D position = new Vector3D(random.nextInt(main.terrain.size[0]),
-                    main.mapStage.peakLevel + 0.5,
-                    random.nextInt(main.terrain.size[1]));
-            Plane plane = null;
-            switch (type) {
-                case PASSENGER -> {
-                    plane = new PassengerPlane(newID, position, 5, peakLevel + 0.5);
-                    main.passengerPlanes.add((PassengerPlane) plane);
-                }
-                case ARMY -> {
-                    plane = new FighterPlane(newID, position, 10, peakLevel + 0.5);
-                    main.fighterPlanes.add((FighterPlane) plane);
-                }
-            }
-            plane.path = path;
-            ;
-            plane.lastAirport = path.get(path.size() - 1);
-            plane.nextAirport = path.get(0);
-            plane.name = newName;
-            planeModels.getChildren().add(plane.getModel());
-            plane.start();
-            main.panelWrap.planesSelectionBox.getItems().add(newName);
-            main.panelWrap.planesSelectionBox.setValue(newName);
-        }
+        plane.path = path;
+        plane.nextAirport = path.get(0);
+        plane.name = newName;
+        planeModels.getChildren().add(plane.getModel());
+        plane.start();
+        main.panelWrap.planesSelectionBox.getItems().add(newName);
+        main.panelWrap.planesSelectionBox.setValue(newName);
     }
 
-    public void createShips(int shipsToCreate) {
-        for (int i = 0; i < shipsToCreate; i++) {
-            createRandomShip();
+    public void createRandomShip(ShipType type) {
+        if(type == null) {
+            type = random.nextBoolean() ? ShipType.FERRY : ShipType.CARRIER;
         }
-    }
-
-    public void createRandomShip() {
         int newID = 0;
         for (int i = 0; i < main.ferries.size() || i < main.carriers.size(); i++) {
             boolean check = true;
@@ -381,14 +378,13 @@ public class MapWindow {
                 break;
             }
         }
-        ShipType type = random.nextBoolean() ? ShipType.FERRY : ShipType.CARRIER;
 
         Vector3D position = null;
-        for(int i=0; i<1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             position = new Vector3D(random.nextInt(main.terrain.size[0]),
                     main.mapStage.waterLevel,
                     random.nextInt(main.terrain.size[1]));
-            if(main.terrain.getChunk((int)position.x, (int)position.z).type == TerrainType.WATER) {
+            if (main.terrain.getChunk((int) position.x, (int) position.z).type == TerrainType.WATER) {
                 break;
             }
         }
@@ -396,10 +392,12 @@ public class MapWindow {
         switch (type) {
             case FERRY -> {
                 ship = new Ferry(newID, position, 3, waterLevel);
-                main.ferries.add((Ferry)ship);
+                ((Ferry)ship).companyName = names[random.nextInt(names.length)];
+                main.ferries.add((Ferry) ship);
             }
             case CARRIER -> {
                 ship = new Carrier(newID, position, 3, waterLevel);
+                ((Carrier) ship).weaponType = random.nextBoolean() ? WeaponType.ROCKETS : WeaponType.CARABINE;
                 main.carriers.add((Carrier) ship);
             }
         }

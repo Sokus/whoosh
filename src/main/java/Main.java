@@ -15,6 +15,7 @@ public class Main extends Application {
 
     public MapWindow mapStage;
     public ControlWindow panelWrap;
+    public TabsUpdater tabsUpdater;
     public Terrain terrain;
 
     public Vector<Airport> airports = new Vector<>();
@@ -27,6 +28,8 @@ public class Main extends Application {
     public void start(Stage stage) {
         mapStage = new MapWindow(this, stage);
         panelWrap = new ControlWindow(this);
+        tabsUpdater = new TabsUpdater(panelWrap);
+        tabsUpdater.start();
     }
 
     public void stop() {
@@ -42,6 +45,7 @@ public class Main extends Application {
         for (Vehicle v : carriers) {
             v.stop();
         }
+        tabsUpdater.stop();
     }
 
     public static void main(String[] args) {

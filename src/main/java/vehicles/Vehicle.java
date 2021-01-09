@@ -11,8 +11,9 @@ public abstract class Vehicle implements Runnable {
 
     public int UID;
     public String name;
-    Vector3D position;
-    double maxSpeed; // units per second
+    public Vector3D position;
+    Vector3D initialPosition;
+    public double maxSpeed; // units per second
     double cruiseLevel;
 
     Sphere model;
@@ -20,6 +21,7 @@ public abstract class Vehicle implements Runnable {
     Vehicle(int UID, Vector3D position, double maxSpeed, double cruiseLevel) {
         this.UID = UID;
         this.position = new Vector3D(position);
+        this.initialPosition = new Vector3D(position);
         this.maxSpeed = maxSpeed;
         this.cruiseLevel = cruiseLevel;
 

@@ -13,10 +13,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import main.java.Airport;
 import main.java.Main;
-import main.java.vehicles.PlaneType;
-import main.java.vehicles.Plane;
-import main.java.vehicles.Ship;
-import main.java.vehicles.ShipType;
+import main.java.utility.Vector3D;
+import main.java.vehicles.*;
 
 import java.util.Vector;
 
@@ -55,15 +53,35 @@ public class ControlWindow {
         VBox addRandom = new VBox();
         {
             addRandom.setPadding(new Insets(10, 10, 10, 10));
-            Label randomTitle = new Label("Add random airports:");
-            HBox buttons = new HBox();
-            buttons.setSpacing(5);
+            HBox addRandomHBox = new HBox();
+            addRandomHBox.setSpacing(5);
+            ComboBox typeSelectionBox = new ComboBox();
+            typeSelectionBox.getItems().addAll("Passenger", "Army", "Random");
+            typeSelectionBox.setValue("Random");
+
             Button addOneRandomAirport = new Button("Add 1");
-            addOneRandomAirport.setOnMouseClicked(e -> main.mapStage.createAirports(1));
+            addOneRandomAirport.setOnMouseClicked(e -> {
+                PlaneType planeType = null;
+                switch(typeSelectionBox.getSelectionModel().getSelectedItem().toString()) {
+                    case "Passenger" -> planeType = PlaneType.PASSENGER;
+                    case "Army" -> planeType = PlaneType.ARMY;
+                }
+                main.mapStage.createRandomAirport(planeType);
+            });
             Button addFiveRandomAirports = new Button("Add 5");
-            addFiveRandomAirports.setOnMouseClicked(e -> main.mapStage.createAirports(5));
-            buttons.getChildren().addAll(addOneRandomAirport, addFiveRandomAirports);
-            addRandom.getChildren().addAll(randomTitle, buttons);
+            addFiveRandomAirports.setOnMouseClicked(e -> {
+                for(int i=0; i<5; i++) {
+                    PlaneType planeType = null;
+                    switch(typeSelectionBox.getSelectionModel().getSelectedItem().toString()) {
+                        case "Passenger" -> planeType = PlaneType.PASSENGER;
+                        case "Army" -> planeType = PlaneType.ARMY;
+                    }
+                    main.mapStage.createRandomAirport(planeType);
+                }
+            });
+            addRandomHBox.getChildren().addAll(new Label("Type:"), typeSelectionBox, addOneRandomAirport, addFiveRandomAirports);
+
+            addRandom.getChildren().addAll(new Label("Add random airports:"), addRandomHBox);
         }
 
         HBox selectAirport = new HBox();
@@ -200,17 +218,35 @@ public class ControlWindow {
         VBox addRandom = new VBox();
         {
             addRandom.setPadding(new Insets(10, 10, 10, 10));
-            Label randomTitle = new Label("Add random planes:");
-            HBox buttons = new HBox();
-            buttons.setSpacing(5);
+            HBox addRandomHBox = new HBox();
+            addRandomHBox.setSpacing(5);
+            ComboBox typeSelectionBox = new ComboBox();
+            typeSelectionBox.getItems().addAll("Passenger", "Fighter", "Random");
+            typeSelectionBox.setValue("Random");
+
             Button addOneRandomPlane = new Button("Add 1");
             addOneRandomPlane.setOnMouseClicked(e -> {
-                main.mapStage.createPlanes(1);
+                PlaneType planeType = null;
+                switch(typeSelectionBox.getSelectionModel().getSelectedItem().toString()) {
+                    case "Passenger" -> planeType = PlaneType.PASSENGER;
+                    case "Fighter" -> planeType = PlaneType.ARMY;
+                }
+                main.mapStage.createRandomPlane(planeType, null);
             });
             Button addFiveRandomPlanes = new Button("Add 5");
-            addFiveRandomPlanes.setOnMouseClicked(e -> main.mapStage.createPlanes(5));
-            buttons.getChildren().addAll(addOneRandomPlane, addFiveRandomPlanes);
-            addRandom.getChildren().addAll(randomTitle, buttons);
+            addFiveRandomPlanes.setOnMouseClicked(e -> {
+                for(int i=0; i<5; i++) {
+                    PlaneType planeType = null;
+                    switch(typeSelectionBox.getSelectionModel().getSelectedItem().toString()) {
+                        case "Passenger" -> planeType = PlaneType.PASSENGER;
+                        case "Fighter" -> planeType = PlaneType.ARMY;
+                    }
+                    main.mapStage.createRandomPlane(planeType, null);
+                }
+            });
+            addRandomHBox.getChildren().addAll(new Label("Type:"), typeSelectionBox, addOneRandomPlane, addFiveRandomPlanes);
+
+            addRandom.getChildren().addAll(new Label("Add random planes:"), addRandomHBox);
         }
 
         HBox selectPlane = new HBox();
@@ -218,6 +254,11 @@ public class ControlWindow {
         Label idLabel = new Label(notSelectedPrompt);
         Label nameLabel = new Label(notSelectedPrompt);
         Label typeLabel = new Label(notSelectedPrompt);
+        Label fuelLabel = new Label(notSelectedPrompt);
+        Label speedLabel = new Label(notSelectedPrompt);
+        Label passengersLabel = new Label(notSelectedPrompt);
+        Label weaponTypeLabel = new Label(notSelectedPrompt);
+        Label nextAirportLabel = new Label(notSelectedPrompt);
         VBox pathList = new VBox();
         {
             pathList.setPadding(new Insets(10, 10, 10, 10));
@@ -227,7 +268,6 @@ public class ControlWindow {
             planesSelectionBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
                         Plane selectedPlane = null;
                         Plane oldPlane = null;
-                        PlaneType planeType = PlaneType.PASSENGER;
                         for (Plane p : main.passengerPlanes) {
                             if (oldPlane == null && p.name == oldValue) {
                                 oldPlane = p;
@@ -236,7 +276,6 @@ public class ControlWindow {
                                 selectedPlane = p;
                             }
                             if (oldPlane != null && selectedPlane != null) {
-                                planeType = PlaneType.PASSENGER;
                                 break;
                             }
                         }
@@ -248,7 +287,6 @@ public class ControlWindow {
                                 selectedPlane = p;
                             }
                             if (oldPlane != null && selectedPlane != null) {
-                                planeType = PlaneType.ARMY;
                                 break;
                             }
                         }
@@ -256,30 +294,58 @@ public class ControlWindow {
                             oldPlane.setDarkColor();
                         }
                         if (selectedPlane != null) {
+                            PlaneType planeType = selectedPlane.path.get(0).planeType;
                             selectedPlane.setBrightColor();
                             idLabel.setText(Integer.toString(selectedPlane.UID));
                             nameLabel.setText(selectedPlane.name);
                             typeLabel.setText(planeType.name());
+                            int fuelPercentage = 100*selectedPlane.currentFuel/selectedPlane.fuelCapacity;
+                            fuelLabel.setText(fuelPercentage + "%");
+                            speedLabel.setText(selectedPlane.maxSpeed+" u/s");
+                            switch(planeType) {
+                                case PASSENGER -> {
+                                    int passengers = ((PassengerPlane)selectedPlane).currentPassengers;
+                                    passengersLabel.setText(Integer.toString(passengers));
+                                    weaponTypeLabel.setText("<only in fighter jets>");
+                                }
+                                case ARMY -> {
+                                    passengersLabel.setText("<only in passenger planes>");
+                                    WeaponType weaponType = ((FighterPlane) selectedPlane).weaponType;
+                                    weaponTypeLabel.setText(weaponType.name());
+                                }
+                            }
+                            nextAirportLabel.setText(selectedPlane.nextAirport.name);
 
                             pathList.getChildren().clear();
                             pathList.getChildren().add(new Label("Path:"));
                             for (int i = 0; i < selectedPlane.path.size(); i++) {
-                                pathList.getChildren().add(new Label((i + 1) + " " + selectedPlane.path.get(i).name));
+                                String currentPositionMark = selectedPlane.currentAirportIndex == i ? " <-" : "";
+                                pathList.getChildren().add(new Label((i + 1) + " " + selectedPlane.path.get(i).name + currentPositionMark));
                             }
                         } else {
                             idLabel.setText(notSelectedPrompt);
                             nameLabel.setText(notSelectedPrompt);
                             typeLabel.setText(notSelectedPrompt);
+                            fuelLabel.setText(notSelectedPrompt);
+                            speedLabel.setText(notSelectedPrompt);
+                            passengersLabel.setText(notSelectedPrompt);
+                            weaponTypeLabel.setText(notSelectedPrompt);
+                            nextAirportLabel.setText(notSelectedPrompt);
                             pathList.getChildren().clear();
                         }
                     }
             );
 
+            Button emergencyButton = new Button("Call Emergency");
+            emergencyButton.setOnMouseClicked(e -> {
+                String planeName = (String) planesSelectionBox.getSelectionModel().getSelectedItem();
+                CallEmergency(planeName);
+            });
 
             Button deleteButton = new Button("Delete");
             deleteButton.setOnMouseClicked(e -> {
-                String airportName = (String) planesSelectionBox.getSelectionModel().getSelectedItem();
-                DeletePlane(airportName);
+                String planeName = (String) planesSelectionBox.getSelectionModel().getSelectedItem();
+                DeletePlane(planeName);
             });
             Button deleteAllButton = new Button("Delete All");
             deleteAllButton.setOnMouseClicked(e -> {
@@ -294,8 +360,7 @@ public class ControlWindow {
             selectPlane.setPadding(new Insets(10, 10, 10, 10));
             selectPlane.setSpacing(5);
             selectPlane.setAlignment(Pos.TOP_LEFT);
-            selectPlane.getChildren().addAll(new Label("Plane:"), planesSelectionBox);
-            selectPlane.getChildren().addAll(deleteButton, deleteAllButton);
+            selectPlane.getChildren().addAll(new Label("Plane:"), planesSelectionBox, emergencyButton, deleteButton, deleteAllButton);
         }
         resetPlaneSelectionBox();
 
@@ -311,6 +376,16 @@ public class ControlWindow {
             planeDetails.add(nameLabel, 1, 2);
             planeDetails.add(new Label("Type:"), 0, 3);
             planeDetails.add(typeLabel, 1, 3);
+            planeDetails.add(new Label("Fuel:"), 0, 4);
+            planeDetails.add(fuelLabel, 1, 4);
+            planeDetails.add(new Label("Speed:"), 0, 5);
+            planeDetails.add(speedLabel, 1, 5);
+            planeDetails.add(new Label("Passengers:"), 0, 6);
+            planeDetails.add(passengersLabel, 1, 6);
+            planeDetails.add(new Label("Weapon type:"), 0, 7);
+            planeDetails.add(weaponTypeLabel, 1, 7);
+            planeDetails.add(new Label("Next airport:"), 0, 8);
+            planeDetails.add(nextAirportLabel, 1, 8);
         }
 
         vbox.getChildren().addAll(addRandom, selectPlane, planeDetails, pathList);
@@ -323,42 +398,59 @@ public class ControlWindow {
         VBox addRandom = new VBox();
         {
             addRandom.setPadding(new Insets(10, 10, 10, 10));
-            Label randomTitle = new Label("Add random ships:");
-            HBox buttons = new HBox();
-            buttons.setSpacing(5);
-            Button addOneRandomShip = new Button("Add 1");
-            addOneRandomShip.setOnMouseClicked(e -> {
-                main.mapStage.createShips(1);
+            HBox addRandomHBox = new HBox();
+            addRandomHBox.setSpacing(5);
+            ComboBox typeSelectionBox = new ComboBox();
+            typeSelectionBox.getItems().addAll("Ferry", "Carrier", "Random");
+            typeSelectionBox.setValue("Random");
+
+            Button addOneRandomPlane = new Button("Add 1");
+            addOneRandomPlane.setOnMouseClicked(e -> {
+                ShipType shipType = null;
+                switch(typeSelectionBox.getSelectionModel().getSelectedItem().toString()) {
+                    case "Ferry" -> shipType = ShipType.FERRY;
+                    case "Carrier" -> shipType = ShipType.CARRIER;
+                }
+                main.mapStage.createRandomShip(shipType);
             });
-            Button addFiveRandomShip = new Button("Add 5");
-            addFiveRandomShip.setOnMouseClicked(e -> {
-                main.mapStage.createShips(5);
+            Button addFiveRandomShips = new Button("Add 5");
+            addFiveRandomShips.setOnMouseClicked(e -> {
+                for(int i=0; i<5; i++) {
+                    ShipType shipType = null;
+                    switch(typeSelectionBox.getSelectionModel().getSelectedItem().toString()) {
+                        case "Ferry" -> shipType = ShipType.FERRY;
+                        case "Carrier" -> shipType = ShipType.CARRIER;
+                    }
+                    main.mapStage.createRandomShip(shipType);
+                }
             });
-            buttons.getChildren().addAll(addOneRandomShip, addFiveRandomShip);
-            addRandom.getChildren().addAll(randomTitle, buttons);
+            addRandomHBox.getChildren().addAll(new Label("Type:"), typeSelectionBox, addOneRandomPlane, addFiveRandomShips);
+
+            addRandom.getChildren().addAll(new Label("Add random ships:"), addRandomHBox);
         }
 
         HBox selectShip = new HBox();
         String notSelectedPrompt = "<unknown>";
         Label idLabel = new Label(notSelectedPrompt);
         Label nameLabel = new Label(notSelectedPrompt);
+        Label companyNameLabel = new Label(notSelectedPrompt);
         Label typeLabel = new Label(notSelectedPrompt);
+        Label passengersLabel = new Label(notSelectedPrompt);
+        Label weaponTypeLabel = new Label(notSelectedPrompt);
+        Label planesCreatedLabel = new Label(notSelectedPrompt);
         {
             shipsSelectionBox = new ComboBox();
             shipsSelectionBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
                         Ship selectedShip = null;
                         Ship oldShip = null;
-                        ShipType shipType = ShipType.FERRY;
+                        ShipType shipType = null;
                         for (Ship s : main.ferries) {
                             if (oldShip == null && s.name == oldValue) {
                                 oldShip = s;
                             }
                             if (selectedShip == null && s.name == newValue) {
                                 selectedShip = s;
-                            }
-                            if (oldShip != null && selectedShip != null) {
                                 shipType = ShipType.FERRY;
-                                break;
                             }
                         }
                         for (Ship s : main.carriers) {
@@ -367,10 +459,7 @@ public class ControlWindow {
                             }
                             if (selectedShip == null && s.name == newValue) {
                                 selectedShip = s;
-                            }
-                            if (oldShip != null && selectedShip != null) {
                                 shipType = ShipType.CARRIER;
-                                break;
                             }
                         }
                         if (oldShip != null) {
@@ -381,10 +470,32 @@ public class ControlWindow {
                             idLabel.setText(Integer.toString(selectedShip.UID));
                             nameLabel.setText(selectedShip.name);
                             typeLabel.setText(shipType.name());
+                            switch(shipType) {
+                                case FERRY -> {
+                                    String companyName = ((Ferry)selectedShip).companyName;
+                                    int passengers = ((Ferry)selectedShip).currentPassengers;
+                                    companyNameLabel.setText(companyName);
+                                    passengersLabel.setText(Integer.toString(passengers));
+                                    weaponTypeLabel.setText("<only in carriers>");
+                                    planesCreatedLabel.setText("<only in carriers>");
+                                }
+                                case CARRIER -> {
+                                    WeaponType weaponType = ((Carrier)selectedShip).weaponType;
+                                    int planesCreated = ((Carrier)selectedShip).planesCreated;
+                                    companyNameLabel.setText("<only in ferries>");
+                                    passengersLabel.setText("<only in ferries>");
+                                    weaponTypeLabel.setText(weaponType.name());
+                                    planesCreatedLabel.setText(Integer.toString(planesCreated));
+                                }
+                            }
                         } else {
                             idLabel.setText(notSelectedPrompt);
                             nameLabel.setText(notSelectedPrompt);
+                            companyNameLabel.setText(notSelectedPrompt);
                             typeLabel.setText(notSelectedPrompt);
+                            passengersLabel.setText(notSelectedPrompt);
+                            weaponTypeLabel.setText(notSelectedPrompt);
+                            planesCreatedLabel.setText(notSelectedPrompt);
                         }
                     }
             );
@@ -411,6 +522,23 @@ public class ControlWindow {
             selectShip.getChildren().addAll(new Label("Ship:"), shipsSelectionBox);
             selectShip.getChildren().addAll(deleteButton, deleteAllButton);
         }
+
+        HBox createFighterPlane = new HBox();
+        {
+            createFighterPlane.setPadding(new Insets(0,10,10,10));
+            Button createButton = new Button("Create Fighter Plane");
+            createButton.setOnMouseClicked(e -> {
+                String name = (String)shipsSelectionBox.getSelectionModel().getSelectedItem();
+                if(name == null) return;
+                for(Carrier c : main.carriers) {
+                    if(c.name.equals(name)) {
+                        main.mapStage.createRandomPlane(PlaneType.ARMY, c);
+                        return;
+                    }
+                }
+            });
+            createFighterPlane.getChildren().add(createButton);
+        }
         resetShipSelectionBox();
 
         GridPane shipDetails = new GridPane();
@@ -425,9 +553,18 @@ public class ControlWindow {
             shipDetails.add(nameLabel, 1, 2);
             shipDetails.add(new Label("Type:"), 0, 3);
             shipDetails.add(typeLabel, 1, 3);
+            shipDetails.add(new Label("Company:"), 0, 4);
+            shipDetails.add(companyNameLabel, 1, 4);
+            shipDetails.add(new Label("Passengers:"), 0, 5);
+            shipDetails.add(passengersLabel, 1, 5);
+            shipDetails.add(new Label("Weapon Type:"), 0, 6);
+            shipDetails.add(weaponTypeLabel, 1, 6);
+            shipDetails.add(new Label("Planes created:"), 0, 7);
+            shipDetails.add(planesCreatedLabel, 1, 7);
+
         }
 
-        vbox.getChildren().addAll(addRandom, selectShip, shipDetails);
+        vbox.getChildren().addAll(addRandom, selectShip, createFighterPlane, shipDetails);
     }
 
     private void DeleteAirport(String name) {
@@ -443,7 +580,7 @@ public class ControlWindow {
                         DeleteAirportFromPlane(a, main.fighterPlanes.get(ii));
                     }
                     main.airports.remove(a);
-                    while (main.panelWrap.airportsSelectionBox.getItems().remove(name)) ;
+                    while (main.panelWrap.airportsSelectionBox.getItems().remove(name));
                     i--;
                 }
             }
@@ -519,6 +656,46 @@ public class ControlWindow {
         }
     }
 
+    private void CallEmergency(String planeName) {
+        if (planeName != null) {
+            Plane p = null;
+            PlaneType planeType = null;
+            for (int i = 0; i < main.passengerPlanes.size(); i++) {
+                p = main.passengerPlanes.get(i);
+                if (planeName.equals(p.name)) {
+                    planeType = PlaneType.PASSENGER;
+                    break;
+                }
+            }
+            for (int i = 0; i < main.fighterPlanes.size(); i++) {
+                if(p != null) {
+                    break;
+                }
+                p = main.fighterPlanes.get(i);
+                if (planeName.equals(p.name)) {
+                    planeType = PlaneType.ARMY;
+                    break;
+                }
+            }
+            if(p != null) {
+                Vector3D position2D = Vector3D.Flat(p.position);
+                Vector3D nextAirportPosition2D = Vector3D.Flat(p.nextAirport.position);
+                double mag = Vector3D.Mag(Vector3D.Sub(position2D, nextAirportPosition2D));
+                for(Airport a : main.airports) {
+                    if(a.planeType == planeType){
+                        Vector3D airportPosition2D = Vector3D.Flat(a.position);
+                        Vector3D difference = Vector3D.Sub(position2D, airportPosition2D);
+                        double newMag = Vector3D.Mag(difference);
+                        if(newMag < mag) {
+                            mag = newMag;
+                            p.nextAirport = a;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void resetAirportSelectionBox() {
         airportsSelectionBox.getItems().clear();
         for (Airport airport : main.airports) {
@@ -555,8 +732,33 @@ public class ControlWindow {
         }
     }
 
+    public void updateAirportTab() {
+        Platform.runLater(() -> {
+            String value = (String)airportsSelectionBox.getSelectionModel().getSelectedItem();
+            airportsSelectionBox.setValue("");
+            airportsSelectionBox.setValue(value);
+        });
+    }
+
+    public void updatePlanesTab() {
+        Platform.runLater(() -> {
+            String value = (String)planesSelectionBox.getSelectionModel().getSelectedItem();
+            planesSelectionBox.setValue("");
+            planesSelectionBox.setValue(value);
+        });
+    }
+
+    public void updateShipsTab() {
+        Platform.runLater(() -> {
+            String value = (String)shipsSelectionBox.getSelectionModel().getSelectedItem();
+            shipsSelectionBox.setValue("");
+            shipsSelectionBox.setValue(value);
+        });
+    }
+
     public ControlWindow(Main main) {
         tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         stage = new Stage();
         this.main = main;
         this.size = new int[]{400, 720};
